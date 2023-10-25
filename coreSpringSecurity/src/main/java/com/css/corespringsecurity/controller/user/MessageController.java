@@ -9,6 +9,6 @@ public class MessageController {
     @GetMapping(value="/messages")
     public String mypage() throws Exception{
 
-        return "user/massages";
+        return "user/messages";
     }
 }
