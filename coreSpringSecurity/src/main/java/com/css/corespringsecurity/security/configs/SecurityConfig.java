@@ -2,6 +2,7 @@ package com.css.corespringsecurity.security.configs;
 
 import com.css.corespringsecurity.security.provider.CustomAuthenticationProvider;
 import com.css.corespringsecurity.security.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -20,21 +21,40 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private AuthenticationDetailsSource authenticationDetailsSource;
+
+    @Autowired
+    private AuthenticationFailureHandler customAuthenticationFailureHandler;
+
+    @Autowired
+    private AuthenticationSuccessHandler customAuthenticationSuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
                 .authorizeRequests()
-                .antMatchers("/", "/users").permitAll()
+                .antMatchers("/", "/users/login/**", "/login*").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated()
         .and()
-                .formLogin();
+                .formLogin()
+                .loginPage("/login")
+                .loginProcessingUrl("/login_proc")
+                .authenticationDetailsSource(authenticationDetailsSource) // 우리가 만든 AuthenticationDetailsSource인 FormWebAuthenticationDetailsSource 를 등록
+                .defaultSuccessUrl("/")
+                .successHandler(customAuthenticationSuccessHandler)
+                .failureHandler(customAuthenticationFailureHandler)
+                .permitAll() // 로그인은 인증을 받지 않은 사용자라도 접근 가능해야 하기 때문에.
+                ;
 
         return http.build();
     }
@@ -48,29 +68,7 @@ public class SecurityConfig {
     }
 
     //강의에서 쓰는 configure가 deprecated 되어서 이전 프로젝트에서 가지고 옴
-   /* @Bean
-    public static UserDetailsManager users() {
 
-        UserDetails user = User.builder()
-                .username("user")
-                .password("{noop}1111")
-                .roles("USER")
-                .build();
-
-        UserDetails sys = User.builder()
-                .username("manager")
-                .password("{noop}1111")
-                .roles("MANAGER", "USER")
-                .build();
-
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password("{noop}1111")
-                .roles("ADMIN", "MANAGER", "USER")
-                .build();
-
-        return new InMemoryUserDetailsManager( user, sys, admin );
-    }*/
 
    /* @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
