@@ -1,5 +1,6 @@
 package com.css.corespringsecurity.security.configs;
 
+import com.css.corespringsecurity.security.handler.CustomAccessDeniedHandler;
 import com.css.corespringsecurity.security.provider.CustomAuthenticationProvider;
 import com.css.corespringsecurity.security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
@@ -46,10 +49,14 @@ public class SecurityConfig {
                 .antMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated()
         .and()
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler())
+        .and()
                 .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/login_proc")
-                .authenticationDetailsSource(authenticationDetailsSource) // 우리가 만든 AuthenticationDetailsSource인 FormWebAuthenticationDetailsSource 를 등록
+                .authenticationDetailsSource(authenticationDetailsSource)
+                // 우리가 만든 AuthenticationDetailsSource인 FormWebAuthenticationDetailsSource 를 등록
                 .defaultSuccessUrl("/")
                 .successHandler(customAuthenticationSuccessHandler)
                 .failureHandler(customAuthenticationFailureHandler)
@@ -81,6 +88,13 @@ public class SecurityConfig {
         return new CustomAuthenticationProvider();
 
     }
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        accessDeniedHandler.setErrorPage("/denied");
+        return accessDeniedHandler;
+    }
+
 
 
 }
