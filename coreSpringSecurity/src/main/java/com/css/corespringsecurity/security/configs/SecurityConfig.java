@@ -1,49 +1,42 @@
 package com.css.corespringsecurity.security.configs;
 
-import com.css.corespringsecurity.security.handler.CustomAccessDeniedHandler;
-import com.css.corespringsecurity.security.provider.CustomAuthenticationProvider;
-import com.css.corespringsecurity.security.service.CustomUserDetailsService;
+import com.css.corespringsecurity.security.common.FormWebAuthenticationDetailsSource;
+import com.css.corespringsecurity.security.handler.FormAccessDeniedHandler;
+import com.css.corespringsecurity.security.provider.FormAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationDetailsSource;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @EnableWebSecurity
+@Order(1)
 public class SecurityConfig {
 
-    @Autowired
-    private AuthenticationDetailsSource authenticationDetailsSource;
+    @Autowired // AuthenticationDetailsSource로 등록할 시 메소드 체이닝에서 제너럴 값이 사라지는 오류 생김.
+    private FormWebAuthenticationDetailsSource authenticationDetailsSource;
 
     @Autowired
-    private AuthenticationFailureHandler customAuthenticationFailureHandler;
+    private AuthenticationFailureHandler formAuthenticationFailureHandler;
 
     @Autowired
-    private AuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private AuthenticationSuccessHandler formAuthenticationSuccessHandler;
+
+
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception{
         http
                 .authorizeRequests()
-                .antMatchers("/", "/users/login/**", "/login*").permitAll()
+                .antMatchers("/", "/users/login/**","/users", "/login*").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")
@@ -58,10 +51,11 @@ public class SecurityConfig {
                 .authenticationDetailsSource(authenticationDetailsSource)
                 // 우리가 만든 AuthenticationDetailsSource인 FormWebAuthenticationDetailsSource 를 등록
                 .defaultSuccessUrl("/")
-                .successHandler(customAuthenticationSuccessHandler)
-                .failureHandler(customAuthenticationFailureHandler)
+                .successHandler(formAuthenticationSuccessHandler)
+                .failureHandler(formAuthenticationFailureHandler)
                 .permitAll() // 로그인은 인증을 받지 않은 사용자라도 접근 가능해야 하기 때문에.
-                ;
+        ;
+
 
         return http.build();
     }
@@ -74,27 +68,19 @@ public class SecurityConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    //강의에서 쓰는 configure가 deprecated 되어서 이전 프로젝트에서 가지고 옴
 
-
-   /* @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
-        return authenticationConfiguration.getAuthenticationManager();
-
-    }*/
 
     @Bean
-    public CustomAuthenticationProvider customAuthenticationProvider(){
-        return new CustomAuthenticationProvider();
+    public FormAuthenticationProvider formAuthenticationProvider(){
+        return new FormAuthenticationProvider();
 
     }
     @Bean
     public AccessDeniedHandler accessDeniedHandler(){
-        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        FormAccessDeniedHandler accessDeniedHandler = new FormAccessDeniedHandler();
         accessDeniedHandler.setErrorPage("/denied");
         return accessDeniedHandler;
     }
-
 
 
 }
