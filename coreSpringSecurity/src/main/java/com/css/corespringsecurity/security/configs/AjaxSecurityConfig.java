@@ -15,6 +15,8 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -31,11 +33,13 @@ public class AjaxSecurityConfig {
         http.antMatcher("/api/**")
                 .authorizeRequests()
                 .antMatchers("/api/messages").hasRole("MANAGER")
+                .antMatchers("/api/login").permitAll()
                 .anyRequest().authenticated()
 
 
         .and()
-                .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(ajaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
+                ;
 
         http
                 .exceptionHandling()
@@ -43,9 +47,21 @@ public class AjaxSecurityConfig {
                 .accessDeniedHandler(ajaxAccessDeniedHandler());
         http.csrf().disable();
 
-
+//        customConfigurerAjax(http);
         return http.build();
     }
+
+//    private void customConfigurerAjax(HttpSecurity http) throws Exception {
+//        http.apply(new AjaxLoginConfigurer<>())
+//                .successHandlerAjax(ajaxAuthenticationSuccessHandler())
+//                .failureHandlerAjax(ajaxAuthenticationFailureHander())
+//                .loginPage("/api/login")
+//                .loginProcessingUrl("/api/login")
+//                .setAuthenticationManager(authenticationManager(authenticationConfiguration))
+//                ;
+//
+//    }
+
     @Bean
     public AccessDeniedHandler ajaxAccessDeniedHandler() {
         return new AjaxAccessDeniedHandler();
@@ -59,7 +75,6 @@ public class AjaxSecurityConfig {
         ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHander());
         return ajaxLoginProcessingFilter;
     }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)throws Exception{
         ProviderManager authenticationManager = (ProviderManager) authenticationConfiguration.getAuthenticationManager();
