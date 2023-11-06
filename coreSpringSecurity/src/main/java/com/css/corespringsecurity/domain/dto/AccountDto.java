@@ -1,4 +1,4 @@
-package com.css.corespringsecurity.domain;
+package com.css.corespringsecurity.domain.dto;
 
 import lombok.Data;
 

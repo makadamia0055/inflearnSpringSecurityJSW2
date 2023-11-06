@@ -1,6 +1,6 @@
 package com.css.corespringsecurity.security.filter;
 
-import com.css.corespringsecurity.domain.AccountDto;
+import com.css.corespringsecurity.domain.dto.AccountDto;
 import com.css.corespringsecurity.security.token.AjaxAuthenticationToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.core.Authentication;

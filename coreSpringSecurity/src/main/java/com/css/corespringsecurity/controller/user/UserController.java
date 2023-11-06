@@ -1,7 +1,7 @@
 package com.css.corespringsecurity.controller.user;
 
-import com.css.corespringsecurity.domain.Account;
-import com.css.corespringsecurity.domain.AccountDto;
+import com.css.corespringsecurity.domain.entity.Account;
+import com.css.corespringsecurity.domain.dto.AccountDto;
 import com.css.corespringsecurity.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

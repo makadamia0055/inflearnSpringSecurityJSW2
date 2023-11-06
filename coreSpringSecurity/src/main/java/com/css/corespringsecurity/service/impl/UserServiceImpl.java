@@ -1,6 +1,6 @@
 package com.css.corespringsecurity.service.impl;
 
-import com.css.corespringsecurity.domain.Account;
+import com.css.corespringsecurity.domain.entity.Account;
 import com.css.corespringsecurity.repository.UserRepository;
 import com.css.corespringsecurity.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

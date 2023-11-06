@@ -1,6 +1,6 @@
 package com.css.corespringsecurity.security.handler;
 
-import com.css.corespringsecurity.domain.Account;
+import com.css.corespringsecurity.domain.entity.Account;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

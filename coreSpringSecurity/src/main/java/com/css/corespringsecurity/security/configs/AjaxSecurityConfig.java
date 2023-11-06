@@ -70,13 +70,13 @@ public class AjaxSecurityConfig {
     @Bean
     public AjaxLoginProcessingFilter ajaxLoginProcessingFilter() throws Exception {
         AjaxLoginProcessingFilter ajaxLoginProcessingFilter = new AjaxLoginProcessingFilter();
-        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
+        ajaxLoginProcessingFilter.setAuthenticationManager(ajaxAuthenticationManager(authenticationConfiguration));
         ajaxLoginProcessingFilter.setAuthenticationSuccessHandler(ajaxAuthenticationSuccessHandler());
         ajaxLoginProcessingFilter.setAuthenticationFailureHandler(ajaxAuthenticationFailureHander());
         return ajaxLoginProcessingFilter;
     }
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)throws Exception{
+    public AuthenticationManager ajaxAuthenticationManager(AuthenticationConfiguration authenticationConfiguration)throws Exception{
         ProviderManager authenticationManager = (ProviderManager) authenticationConfiguration.getAuthenticationManager();
         authenticationManager.getProviders().add(ajaxAuthenticationProvider()); // ajaxAuthenticationProvider 추가
         return authenticationManager;
